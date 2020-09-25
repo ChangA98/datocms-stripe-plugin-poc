@@ -5,15 +5,36 @@
   "description": "This plugin will retrieve a products list from Stripe, the prices and the coupons",
   "main": "index.js",
   "scripts": {
-    "start": "NODE_ENV=development webpack-dev-server --port 5000",
+    "start": "webpack-dev-server --port 5000",
     "dist": "NODE_ENV=production webpack --progress",
     "addToProject": "yo datocms-plugin:add-to-project",
     "prepublishOnly": "rimraf lib dist && mkdir dist && npm run dist",
     "lint": "eslint \"./src/*.{js,jsx}\"",
     "test": "echo 1"
   },
-  "keywords": ["datocms","datocms-plugin","field-editor","json-field","text-field","boolean-field","float-field","integer-field","string-field","links-field","link-field","date-field","date-time-field","video-field","color-field","seo-field","lat-lon-field"],
-  "files": ["dist", "docs"],
+  "keywords": [
+    "datocms",
+    "datocms-plugin",
+    "field-editor",
+    "json-field",
+    "text-field",
+    "boolean-field",
+    "float-field",
+    "integer-field",
+    "string-field",
+    "links-field",
+    "link-field",
+    "date-field",
+    "date-time-field",
+    "video-field",
+    "color-field",
+    "seo-field",
+    "lat-lon-field"
+  ],
+  "files": [
+    "dist",
+    "docs"
+  ],
   "author": "Abraham Chang <abraham.chang@correo.unimet.edu.ve>",
   "license": "ISC",
   "datoCmsPlugin": {
@@ -22,57 +43,61 @@
     "coverImage": "docs/cover.png",
     "entryPoint": "dist/index.html",
     "pluginType": "field_editor",
-    "fieldTypes": ["json","text","boolean","float","integer","string","links","link","date","date_time","video","color","seo","lat_lon"],
+    "fieldTypes": [
+      "json",
+      "text",
+      "boolean",
+      "float",
+      "integer",
+      "string",
+      "links",
+      "link",
+      "date",
+      "date_time",
+      "video",
+      "color",
+      "seo",
+      "lat_lon"
+    ],
     "parameters": {
-  "global": [
-    {
-      "id": "developmentMode",
-      "label": "Development mode",
-      "type": "boolean",
-      "required": true,
-      "default": false,
-      "hint": "Shows debug messages in console"
+      "global": [
+        {
+          "id": "developmentMode",
+          "label": "Development mode",
+          "type": "boolean",
+          "required": true,
+          "default": false,
+          "hint": "Shows debug messages in console"
+        },
+        {
+          "id": "stripeApiToken",
+          "label": "Stripe API token",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "instance": []
     }
-  ],
-  "instance": [
-    {
-      "id": "productId",
-      "label": "Product",
-      "type": "string"
-    },
-    {
-      "id": "priceId",
-      "label": "Price",
-      "type": "string"
-    },
-    {
-      "id": "couponId",
-      "label": "Coupon",
-      "type": "string"
-    }
-  ]
-}
   },
   "devDependencies": {
-    
-    "eslint-config-airbnb": "^17.1.0",
-    "eslint-plugin-jsx-a11y": "^6.1.1",
-    "eslint-plugin-react": "^7.11.0",
-    "@babel/plugin-proposal-class-properties": "^7.1.0",
-    "@babel/plugin-proposal-decorators": "^7.1.2",
-    "@babel/preset-react": "^7.0.0",
-    
     "@babel/cli": "^7.0.0-beta.54",
     "@babel/core": "^7.0.0-beta.54",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-proposal-decorators": "^7.1.2",
     "@babel/preset-env": "^7.0.0-beta.54",
-    "@babel/register": "^7.0.0-beta.54", "babel-eslint": "^8.2.6",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/register": "^7.0.0-beta.54",
+    "babel-eslint": "^8.2.6",
     "babel-loader": "^8.0.0-beta",
     "css-loader": "^1.0.0",
     "eslint": "^5.3.0",
+    "eslint-config-airbnb": "^17.1.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-import-resolver-webpack": "^0.10.1",
     "eslint-loader": "^2.1.0",
     "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.1",
+    "eslint-plugin-react": "^7.11.0",
     "generator-datocms-plugin": "^1.0.24",
     "html-webpack-inline-source-plugin": "^0.0.10",
     "html-webpack-plugin": "^3.2.0",
@@ -87,12 +112,11 @@
     "yo": "^3.1.1"
   },
   "dependencies": {
-    
     "classname": "^0.0.0",
+    "html-webpack-tags-plugin": "^2.0.17",
+    "prop-types": "^15.6.2",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
-    "prop-types": "^15.6.2",
-    
-    "html-webpack-tags-plugin": "^2.0.17"
+    "stripe": "^8.101.0"
   }
 }

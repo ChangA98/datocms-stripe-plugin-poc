@@ -1,26 +1,17 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React, { Component } from "react";
 
-import connectToDatoCms from './connectToDatoCms';
-import './style.sass';
+import StripePlugin from "./stripePlugin";
 
-@connectToDatoCms(plugin => ({
+import connectToDatoCms from "./connectToDatoCms";
+import "./style.sass";
+
+@connectToDatoCms((plugin) => ({
   developmentMode: plugin.parameters.global.developmentMode,
+  stripeApiToken: plugin.parameters.global.stripeApiToken,
   fieldValue: plugin.getFieldValue(plugin.fieldPath),
 }))
-
 export default class Main extends Component {
-  static propTypes = {
-    fieldValue: PropTypes.bool.isRequired,
-  }
-
   render() {
-    const { fieldValue } = this.props;
-
-    return (
-      <div className="container">
-        {JSON.stringify(fieldValue)}
-      </div>
-    );
+    return <StripePlugin token={this.props.stripeApiToken} />;
   }
 }

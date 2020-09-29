@@ -4,7 +4,10 @@ const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin');
 const isProduction = process.env.NODE_ENV === 'production';
 
 module.exports = {
-  entry: __dirname + '/src/index.jsx',
+  entry: [
+    "@babel/polyfill",
+    __dirname + '/src/index.jsx',
+  ],
   mode: process.env.NODE_ENV,
   output: {
     path: __dirname + '/dist',
@@ -27,7 +30,8 @@ module.exports = {
       {
         test: /\.jsx?$/,
         exclude: /(node_modules|bower_components)/,
-        use: { loader: 'babel-loader' } },
+        use: { loader: 'babel-loader' }
+      },
       {
         test: /\.sass$/,
         use: [

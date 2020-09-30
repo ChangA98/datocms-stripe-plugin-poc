@@ -4,7 +4,7 @@ import { getProducts, getPrices, getCoupons } from './utils';
 
 import Dropdown from './components/dropdown';
 
-const TOKEN = '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';
+const TOKEN = '';
 
 const deserialize = plugin => JSON.parse(plugin.getFieldValue(plugin.fieldPath)) || {};
 

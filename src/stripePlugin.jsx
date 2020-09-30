@@ -1,128 +1,82 @@
 import React, { useState, useEffect } from 'react';
 
+import { getProducts, getPrices, getCoupons } from './utils';
+
 import Dropdown from './components/dropdown';
 
-const stripePlugin = ({ token }) => {
-    const TOKEN = '';
-    console.log('token', TOKEN)
+const TOKEN = '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';
+
+const deserialize = plugin => JSON.parse(plugin.getFieldValue(plugin.fieldPath)) || {};
+
+const StripePlugin = ({ plugin }) => {
+    const [fieldValue, setFieldValue] = useState(deserialize(plugin));
+
+    useEffect(() => {
+        const unsubscribe = plugin
+            .addFieldChangeListener(
+                plugin.fieldPath,
+                () => setFieldValue(deserialize(plugin))
+            );
+        return () => unsubscribe();
+    }, []);
+
+    const initSelection = itemName => fieldValue[itemName] ? fieldValue[itemName] : '';
+
+    const [selectedProduct, setSelectedProduct] = useState(initSelection('productId'));
+    const [selectedPrice, setSelectedPrice] = useState(initSelection('priceId'));
+    const [selectedCoupon, setSelectedCoupon] = useState(initSelection('couponId'));
+
+    useEffect(() => {
+        fieldValue['productId'] && setSelectedProduct(fieldValue['productId']);
+        fieldValue['priceId'] && setSelectedPrice(fieldValue['priceId']);
+        fieldValue['couponId'] && setSelectedCoupon(fieldValue['couponId']);
+    }, [fieldValue]);
 
     const [products, setProducts] = useState(false);
     const [prices, setPrices] = useState(false);
     const [coupons, setCoupons] = useState(false);
 
-    const [selectedProduct, setSelectedProduct] = useState('');
-    const [selectedPrice, setSelectedPrice] = useState('');
-    const [selectedCoupon, setSelectedCoupon] = useState('');
-
-    const [elegibleForCoupon, setElegibleForCoupon] = useState('');
-
-    console.log('Product > ', selectedProduct);
-    console.log('Price > ', selectedPrice);
-    console.log('Coupon > ', selectedCoupon);
-
+    const [elegibleForCoupon, setElegibleForCoupon] = useState(false); // TODO Add Initializer
     const [loading, setLoading] = useState(false);
 
-    async function getProducts() {
-        setLoading(true);
-
-        const response = await fetch('https://api.stripe.com/v1/products?active=true', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${TOKEN}`,
-            }
-        }).then(res => {
-            return res.json();
-        }).then(response => {
-            return response;
-        });
-
-        const products = response.data;
-
-        if (products) {
-            setProducts(products);
-        }
-
-        setLoading(false);
-    }
-
-    async function getPrices(productId) {
-        const response = await fetch(`https://api.stripe.com/v1/prices?product=${productId}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${TOKEN}`,
-            },
-        }).then(res => {
-            return res.json();
-        }).then(response => {
-            return response;
-        });
-
-        const prices = response.data;
-
-        if (prices) {
-            setPrices(prices);
-        }
-    }
-
-    async function getCoupons() {
-        const response = await fetch(`https://api.stripe.com/v1/coupons`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${TOKEN}`,
-            },
-        }).then(res => {
-            return res.json();
-        }).then(response => {
-            return response;
-        });
-
-        const coupons = response.data;
-
-        if (coupons) {
-            setCoupons(coupons);
-        }
-    }
-
     useEffect(() => {
-        getProducts();
-        getCoupons();
+        (async () => {
+            setLoading(true);
+            setProducts(await getProducts(TOKEN) || false);
+            setCoupons(await getCoupons(TOKEN) || false);
+            setLoading(false)
+        })();
     }, []);
 
     useEffect(() => {
-        if (selectedProduct !== '') {
-            setPrices(false);
-            setSelectedPrice('');
-            setElegibleForCoupon(false);
-            getPrices(selectedProduct);
-        }
+        (async () => {
+            if (selectedProduct !== '') {
+                setLoading(true);
+                setPrices(await getPrices(TOKEN, selectedProduct) || false);
+                setLoading(false);
+            }
+        })();
     }, [selectedProduct]);
 
     useEffect(() => {
-        if (selectedPrice !== '') {
+        if (prices && selectedPrice !== '') {
             const price = prices.find(price => price.id === selectedPrice);
-
             if (price.type === 'recurring') {
                 setElegibleForCoupon(true);
             } else {
                 setElegibleForCoupon(false);
             }
         }
-    }, [selectedPrice]);
+    }, [prices, selectedPrice]);
 
-    if (loading) {
-        return (
-            <div>
-                <p>Wait... fetching products ;)</p>
-            </div>
-        )
-    }
-
-    if (!products) {
-        return (
-            <div>
-                <p>No products loaded :(</p>
-            </div>
-        )
+    const handleOnChange = (value, itemName) => {
+        plugin.setFieldValue(
+            plugin.fieldPath, (
+            JSON.stringify({
+                ...fieldValue,
+                [itemName]: value
+            })
+        ));
     }
 
     return (
@@ -131,7 +85,7 @@ const stripePlugin = ({ token }) => {
             {products && (
                 <Dropdown
                     value={selectedProduct}
-                    handleOnChange={e => setSelectedProduct(e.target.value)}
+                    handleOnChange={e => handleOnChange(e.target.value, 'productId')}
                     placeholder='Select Product'>
                     {products.map(({ id, name }) => (
                         <option key={id} value={id}>{name} sqft.</option>
@@ -143,7 +97,7 @@ const stripePlugin = ({ token }) => {
             {prices && (
                 <Dropdown
                     value={selectedPrice}
-                    handleOnChange={e => setSelectedPrice(e.target.value)}
+                    handleOnChange={e => handleOnChange(e.target.value, 'priceId')}
                     placeholder='Select Price'>
                     {prices.map(({ id, nickname }) => (
                         <option key={id} value={id}>{nickname}</option>
@@ -155,7 +109,7 @@ const stripePlugin = ({ token }) => {
             {(coupons && selectedPrice && elegibleForCoupon) && (
                 <Dropdown
                     value={selectedCoupon}
-                    handleOnChange={e => setSelectedCoupon(e.target.value)}
+                    handleOnChange={e => handleOnChange(e.target.value, 'couponId')}
                     placeholder='Select Coupon'>
                     {coupons.map(({ id, name }) => (
                         <option key={id} value={id}>{name}</option>
@@ -166,4 +120,4 @@ const stripePlugin = ({ token }) => {
     );
 };
 
-export default stripePlugin;
+export default StripePlugin;
